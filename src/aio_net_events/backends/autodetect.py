@@ -1,3 +1,7 @@
+import platform
+
+from pathlib import Path
+
 from .base import NetworkEventDetectorBackend
 
 
@@ -8,6 +12,11 @@ def choose_backend() -> NetworkEventDetectorBackend:
     Returns:
         a newly constructed network event detector backend instance
     """
-    from .portable import PortableNetworkEventDetectorBackend
+    if platform.system() == "Link" and Path("/proc/net/netlink").exists():
+        from .netlink import NetlinkBasedNetworkEventDetectorBackend
 
-    return PortableNetworkEventDetectorBackend()
+        return NetlinkBasedNetworkEventDetectorBackend()
+    else:
+        from .portable import PortableNetworkEventDetectorBackend
+
+        return PortableNetworkEventDetectorBackend()
