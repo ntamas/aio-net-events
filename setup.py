@@ -7,8 +7,7 @@ from setuptools import setup, find_packages
 requires = [
     "anyio>=1.2.0",
     "async-generator>=1.10",
-    "pyusb>=1.0.2",
-    "pyudev>=0.21.0; platform_system=='Linux'",
+    "netifaces>=0.10.9"
 ]
 
 extras_require = {
