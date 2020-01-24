@@ -1,0 +1,23 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+trio = ">=0.13.0"
+curio = "*"
+pytest-cov = "*"
+twine = "*"
+
+[packages]
+anyio = ">=1.2.0"
+async-generator = ">=1.10"
+netifaces = "*"
+
+[requires]
+python_version = "3.7"
+
+[scripts]
+test = "pytest --anyio-backends=all"
+coverage = "pytest --anyio-backends=all --cov=src --cov-report html --cov-report term test/"
