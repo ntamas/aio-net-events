@@ -12,7 +12,7 @@ requires = [
 
 extras_require = {
     "dev": [
-        "curio>=0.9",
+        "curio>=1.1; python_version>='3.6'",
         "pytest>=5.2.4",
         "pytest-cov>=2.0.1",
         "trio>=0.13.0",
