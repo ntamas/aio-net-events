@@ -13,6 +13,6 @@ def test_autodetection():
             == "SystemConfigurationBasedNetworkEventDetectorBackend"
         )
     elif platform.system() == "Linux" and Path("/proc/net/netlink").exists():
-        assert backend.__class__.__name__ == "NeltinkBasedNetworkEventDetectorBackend"
+        assert backend.__class__.__name__ == "NetlinkBasedNetworkEventDetectorBackend"
     else:
         assert backend.__class__.__name__ == "PortableNetworkEventDetectorBackend"
