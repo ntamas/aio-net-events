@@ -33,4 +33,4 @@ jobs:
         poetry run flake8 src --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        poetry run pytest --anyio-backends=all
+        poetry run pytest
