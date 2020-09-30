@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "aio-net-events"
+version = "0.1.0"
+description = "Asynchronous network configuration event detector for Python 3.6 and above"
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/ntamas/aio-net-events/"
+repository = "https://github.com/ntamas/aio-net-events/"
+authors = ["Tamas Nepusz <tamas@collmot.com>"]
+packages = [
+    { include = "aio_net_events", from = "src" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.6.2"
+netifaces = "^0.10.9"
+anyio = "^2.0.2"
+pyobjc-core = { version = "^6.2.2", platform = "darwin" }
+pyobjc-framework-Cocoa = { version = "^6.2.2", platform = "darwin" }
+pyobjc-framework-SystemConfiguration = { version = "^6.2.2", platform = "darwin" }
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.4.3"
+coverage = {extras = ["toml"], version = "^5.2"}
+pytest-cov = "^2.10.0"
+black = {version = "^20.8b1", allow-prereleases = true}
+curio = "^1.4"
+trio = "^0.17.0"
+
+[tool.poetry.scripts]
+
+[tool.coverage.paths]
+source = ["src"]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+

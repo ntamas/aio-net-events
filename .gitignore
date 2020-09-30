@@ -11,3 +11,5 @@ htmlcov/
 .pytest_cache/
 .tox/
 .venv/
+.vscode/
+

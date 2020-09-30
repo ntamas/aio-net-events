@@ -12,10 +12,14 @@ def choose_backend() -> NetworkEventDetectorBackend:
     Returns:
         a newly constructed network event detector backend instance
     """
-    if platform.system() == "Link" and Path("/proc/net/netlink").exists():
+    if platform.system() == "Linux" and Path("/proc/net/netlink").exists():
         from .netlink import NetlinkBasedNetworkEventDetectorBackend
 
         return NetlinkBasedNetworkEventDetectorBackend()
+    elif platform.system() == "Darwin":
+        from .macos import SystemConfigurationBasedNetworkEventDetectorBackend
+
+        return SystemConfigurationBasedNetworkEventDetectorBackend()
     else:
         from .portable import PortableNetworkEventDetectorBackend
 

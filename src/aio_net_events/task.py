@@ -1,10 +1,10 @@
 """Async event detector for network interfaces."""
 
 from anyio import create_event
-from async_generator import asynccontextmanager, async_generator, yield_
 from collections import namedtuple
+from contextlib import asynccontextmanager
 from enum import Enum
-from typing import Any, Callable, Dict, Iterator, Optional, Tuple
+from typing import Any, AsyncIterator, Callable, Dict, Iterator, Optional, Tuple
 
 from .backends.base import NetworkEventDetectorBackend, NetworkInterface
 from .backends.autodetect import choose_backend
@@ -60,8 +60,7 @@ class NetworkEventDetector:
         self._suspended = 0
         self._resume_event = None
 
-    @async_generator
-    async def added_addresses(self) -> Iterator[NetworkEvent]:
+    async def added_addresses(self) -> AsyncIterator[NetworkEvent]:
         """Runs the network event detection in an asynchronous task.
 
         Yields:
@@ -70,10 +69,9 @@ class NetworkEventDetector:
         """
         async for event in self.events():
             if event.type == NetworkEventType.ADDRESS_ADDED:
-                await yield_(event)
+                yield event
 
-    @async_generator
-    async def added_interfaces(self) -> Iterator[NetworkInterface]:
+    async def added_interfaces(self) -> AsyncIterator[NetworkInterface]:
         """Runs the network event detection in an asynchronous task.
 
         Yields:
@@ -82,10 +80,9 @@ class NetworkEventDetector:
         """
         async for event in self.events():
             if event.type == NetworkEventType.INTERFACE_ADDED:
-                await yield_(event.interface)
+                yield event.interface
 
-    @async_generator
-    async def changed_addresses(self) -> Iterator[NetworkEvent]:
+    async def changed_addresses(self) -> AsyncIterator[NetworkEvent]:
         """Runs the network event detection in an asynchronous task.
 
         Yields:
@@ -97,10 +94,9 @@ class NetworkEventDetector:
                 NetworkEventType.ADDRESS_ADDED,
                 NetworkEventType.ADDRESS_REMOVED,
             ):
-                await yield_(event)
+                yield event
 
-    @async_generator
-    async def events(self) -> Iterator[NetworkEvent]:
+    async def events(self) -> AsyncIterator[NetworkEvent]:
         """Runs the network event detection in an asynchronous task.
 
         Yields:
@@ -111,39 +107,63 @@ class NetworkEventDetector:
         backend.configure(self._params)
         key_of = backend.key_of
 
-        while True:
-            if self._suspended:
-                await self._resume_event.wait()
+        async with backend.use():
+            while True:
+                if self._suspended:
+                    await self._resume_event.wait()
 
-            interfaces = await backend.scan()
+                interfaces = await backend.scan()
 
-            added = {}
-            changed = {}
+                added = {}
+                changed = {}
 
-            for index, interface in enumerate(interfaces):
-                addresses = await backend.get_addresses(interface)
-                key = key_of(interface)
+                for index, interface in enumerate(interfaces):
+                    addresses = await backend.get_addresses(interface)
+                    key = key_of(interface)
 
-                entry = self._entries.get(key)
-                if entry is not None:
-                    changed[key] = self._compare_addresses(entry, addresses)
-                    if any(changed[key]):
-                        self._entries[key] = entry = entry._replace(addresses=addresses)
-                else:
-                    entry = added[key] = NetworkEventDetectorEntry(
-                        interface=interface, addresses=addresses, key=key
+                    entry = self._entries.get(key)
+                    if entry is not None:
+                        changed[key] = self._compare_addresses(entry, addresses)
+                        if any(changed[key]):
+                            self._entries[key] = entry = entry._replace(
+                                addresses=addresses
+                            )
+                    else:
+                        entry = added[key] = NetworkEventDetectorEntry(
+                            interface=interface, addresses=addresses, key=key
+                        )
+
+                to_remove = [key for key in self._entries.keys() if key not in changed]
+                removed = [self._entries.pop(key) for key in to_remove]
+                self._entries.update(added)
+
+                for entry in removed:
+                    interface = entry.interface
+                    key = entry.key
+
+                    for family, addresses in entry.addresses.items():
+                        for address in addresses:
+                            event = NetworkEvent(
+                                type=NetworkEventType.ADDRESS_REMOVED,
+                                interface=interface,
+                                key=key,
+                                address=address,
+                                address_family=family,
+                            )
+                            yield event
+
+                    event = NetworkEvent(
+                        type=NetworkEventType.INTERFACE_REMOVED,
+                        interface=interface,
+                        key=key,
+                        address=None,
+                        address_family=None,
                     )
+                    yield event
 
-            to_remove = [key for key in self._entries.keys() if key not in changed]
-            removed = [self._entries.pop(key) for key in to_remove]
-            self._entries.update(added)
-
-            for entry in removed:
-                interface = entry.interface
-                key = entry.key
-
-                for family, addresses in entry.addresses.items():
-                    for address in addresses:
+                for key, (added_entries, removed_entries) in changed.items():
+                    for entry in removed_entries:
+                        interface, key, family, address = entry
                         event = NetworkEvent(
                             type=NetworkEventType.ADDRESS_REMOVED,
                             interface=interface,
@@ -151,55 +171,10 @@ class NetworkEventDetector:
                             address=address,
                             address_family=family,
                         )
-                        await yield_(event)
+                        yield event
 
-                event = NetworkEvent(
-                    type=NetworkEventType.INTERFACE_REMOVED,
-                    interface=interface,
-                    key=key,
-                    address=None,
-                    address_family=None,
-                )
-                await yield_(event)
-
-            for key, (added_entries, removed_entries) in changed.items():
-                for entry in removed_entries:
-                    interface, key, family, address = entry
-                    event = NetworkEvent(
-                        type=NetworkEventType.ADDRESS_REMOVED,
-                        interface=interface,
-                        key=key,
-                        address=address,
-                        address_family=family,
-                    )
-                    await yield_(event)
-
-                for entry in added_entries:
-                    interface, key, family, address = entry
-                    event = NetworkEvent(
-                        type=NetworkEventType.ADDRESS_ADDED,
-                        interface=interface,
-                        key=key,
-                        address=address,
-                        address_family=family,
-                    )
-                    await yield_(event)
-
-            for entry in added.values():
-                interface = entry.interface
-                key = entry.key
-
-                event = NetworkEvent(
-                    type=NetworkEventType.INTERFACE_ADDED,
-                    interface=interface,
-                    key=key,
-                    address=None,
-                    address_family=None,
-                )
-                await yield_(event)
-
-                for family, addresses in entry.addresses.items():
-                    for address in addresses:
+                    for entry in added_entries:
+                        interface, key, family, address = entry
                         event = NetworkEvent(
                             type=NetworkEventType.ADDRESS_ADDED,
                             interface=interface,
@@ -207,12 +182,35 @@ class NetworkEventDetector:
                             address=address,
                             address_family=family,
                         )
-                        await yield_(event)
+                        yield event
 
-            await backend.wait_until_next_scan()
+                for entry in added.values():
+                    interface = entry.interface
+                    key = entry.key
 
-    @async_generator
-    async def removed_addresses(self) -> Iterator[NetworkEvent]:
+                    event = NetworkEvent(
+                        type=NetworkEventType.INTERFACE_ADDED,
+                        interface=interface,
+                        key=key,
+                        address=None,
+                        address_family=None,
+                    )
+                    yield event
+
+                    for family, addresses in entry.addresses.items():
+                        for address in addresses:
+                            event = NetworkEvent(
+                                type=NetworkEventType.ADDRESS_ADDED,
+                                interface=interface,
+                                key=key,
+                                address=address,
+                                address_family=family,
+                            )
+                            yield event
+
+                await backend.wait_until_next_scan()
+
+    async def removed_addresses(self) -> AsyncIterator[NetworkEvent]:
         """Runs the network event detection in an asynchronous task.
 
         Yields:
@@ -221,10 +219,9 @@ class NetworkEventDetector:
         """
         async for event in self.events():
             if event.type == NetworkEventType.ADDRESS_REMOVED:
-                await yield_(event)
+                yield event
 
-    @async_generator
-    async def removed_interfaces(self) -> Iterator[NetworkEvent]:
+    async def removed_interfaces(self) -> AsyncIterator[NetworkEvent]:
         """Runs the network event detection in an asynchronous task.
 
         Yields:
@@ -233,7 +230,7 @@ class NetworkEventDetector:
         """
         async for event in self.events():
             if event.type == NetworkEventType.INTERFACE_REMOVED:
-                await yield_(event.interface)
+                yield event.interface
 
     async def resume(self) -> None:
         """Resumes the network event detector task after a suspension."""
@@ -248,14 +245,13 @@ class NetworkEventDetector:
             self._resume_event = create_event()
 
     @asynccontextmanager
-    @async_generator
     async def suspended(self) -> None:
         """Async context manager that suspends the network event detector while the
         execution is in the context.
         """
         self.suspend()
         try:
-            await yield_()
+            yield
         finally:
             await self.resume()
 

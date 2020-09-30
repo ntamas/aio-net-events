@@ -1,6 +1,7 @@
 """Interface specification for network event detector backends."""
 
 from abc import abstractmethod, ABCMeta
+from contextlib import asynccontextmanager
 from typing import Any, Dict, List
 
 __all__ = ("NetworkEventDetectorBackend",)
@@ -51,6 +52,18 @@ class NetworkEventDetectorBackend(metaclass=ABCMeta):
         interfaces found.
         """
         raise NotImplementedError  # pragma: no cover
+
+    @asynccontextmanager
+    async def use(self) -> None:
+        """Async context manager that is entered when the backend starts up and
+        exits when the backend shuts down.
+
+        This context manager can be used to run background tc_genhreads or manage
+        any additional resources that correspond to the lifetime of the backend.
+
+        The default implementation does nothing.
+        """
+        yield
 
     @abstractmethod
     async def wait_until_next_scan(self) -> None:
