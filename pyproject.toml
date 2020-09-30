@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aio-net-events"
-version = "0.1.0"
+version = "0.2.0"
 description = "Asynchronous network configuration event detector for Python 3.6 and above"
 license = "MIT"
 readme = "README.md"
