@@ -4,7 +4,7 @@ from anyio import create_event
 from collections import namedtuple
 from contextlib import asynccontextmanager
 from enum import Enum
-from typing import Any, AsyncIterator, Callable, Dict, Iterator, Optional, Tuple
+from typing import Any, AsyncIterator, Callable, Dict, Optional, Tuple
 
 from .backends.base import NetworkEventDetectorBackend, NetworkInterface
 from .backends.autodetect import choose_backend

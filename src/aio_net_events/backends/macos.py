@@ -41,7 +41,7 @@ class SystemConfigurationBasedNetworkEventDetectorBackend(
             )
             yield
 
-    def _ensure_condition_exists() -> None:
+    def _ensure_condition_exists(self) -> None:
         """Creates the condition object that the backend will use to notify
         listeners about network change events.
 
