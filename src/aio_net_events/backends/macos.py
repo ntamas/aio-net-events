@@ -1,9 +1,4 @@
-from anyio import (
-    create_condition,
-    create_task_group,
-    run_async_from_thread,
-    run_sync_in_worker_thread,
-)
+from anyio import Condition, create_task_group, from_thread, to_thread
 from contextlib import asynccontextmanager
 from functools import partial
 
@@ -34,10 +29,8 @@ class SystemConfigurationBasedNetworkEventDetectorBackend(
     async def use(self) -> None:
         self._ensure_condition_exists()
         async with create_task_group() as tg:
-            await tg.spawn(
-                partial(
-                    run_sync_in_worker_thread, self._run_worker_thread, cancellable=True
-                )
+            tg.start_soon(
+                partial(to_thread.run_sync, self._run_worker_thread, cancellable=True)
             )
             yield
 
@@ -50,7 +43,7 @@ class SystemConfigurationBasedNetworkEventDetectorBackend(
         event loop.
         """
         if self._condition is None:
-            self._condition = create_condition()
+            self._condition = Condition()
 
     def _on_network_changed(self, *args, **kwds):
         """Callback that is called by the SystemConfiguration framework when
@@ -58,7 +51,7 @@ class SystemConfigurationBasedNetworkEventDetectorBackend(
 
         This function runs in the context of the worker thread.
         """
-        run_async_from_thread(self._on_network_changed_main)
+        from_thread.run(self._on_network_changed_main)
 
     async def _on_network_changed_main(self):
         """Task that is scheduled on the main event loop when the network

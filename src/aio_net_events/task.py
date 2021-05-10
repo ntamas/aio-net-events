@@ -1,8 +1,8 @@
 """Async event detector for network interfaces."""
 
-from anyio import create_event
+from anyio import Event
 from collections import namedtuple
-from contextlib import asynccontextmanager
+from contextlib import contextmanager
 from enum import Enum
 from typing import Any, AsyncIterator, Callable, Dict, Optional, Tuple
 
@@ -232,20 +232,20 @@ class NetworkEventDetector:
             if event.type == NetworkEventType.INTERFACE_REMOVED:
                 yield event.interface
 
-    async def resume(self) -> None:
+    def resume(self) -> None:
         """Resumes the network event detector task after a suspension."""
         self._suspended -= 1
         if not self._suspended and self._resume_event:
-            await self._resume_event.set()
+            self._resume_event.set()
 
     def suspend(self) -> None:
         """Temporarily suspends the network event detector."""
         self._suspended += 1
         if self._suspended and not self._resume_event:
-            self._resume_event = create_event()
+            self._resume_event = Event()
 
-    @asynccontextmanager
-    async def suspended(self) -> None:
+    @contextmanager
+    def suspended(self) -> None:
         """Async context manager that suspends the network event detector while the
         execution is in the context.
         """
@@ -253,7 +253,7 @@ class NetworkEventDetector:
         try:
             yield
         finally:
-            await self.resume()
+            self.resume()
 
     @staticmethod
     def _compare_addresses(

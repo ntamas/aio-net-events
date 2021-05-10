@@ -1,6 +1,6 @@
 from aio_net_events import NetworkEventDetector
 from aio_net_events.backends.base import NetworkEventDetectorBackend
-from anyio import create_task_group, open_cancel_scope, sleep
+from anyio import CancelScope, create_task_group, sleep
 from collections import defaultdict
 from pytest import fixture, mark
 from typing import Dict, List, Optional
@@ -152,11 +152,11 @@ async def test_event_generator(backend, events):
             ("interface_removed", "foo", "foo_key", None, None),
         ]
 
-        await end()
+        end()
 
     async with create_task_group() as tg:
-        async with open_cancel_scope() as scope:
-            await tg.spawn(scenario, scope.cancel)
+        with CancelScope() as scope:
+            tg.start_soon(scenario, scope.cancel)
             async for event in scanner.events():
                 events.add(
                     (
@@ -174,7 +174,7 @@ async def test_event_generator_suspension(backend, events):
     scanner = NetworkEventDetector(backend=backend)
 
     async def scenario(end):
-        async with scanner.suspended():
+        with scanner.suspended():
             await sleep(0.003)
 
             backend.add("foo")
@@ -206,11 +206,11 @@ async def test_event_generator_suspension(backend, events):
             ("interface_removed", "foo", "foo_key"),
         ]
 
-        await end()
+        end()
 
     async with create_task_group() as tg:
-        async with open_cancel_scope() as scope:
-            await tg.spawn(scenario, scope.cancel)
+        with CancelScope() as scope:
+            tg.start_soon(scenario, scope.cancel)
             async for event in scanner.events():
                 events.add((event.type.value, event.interface, event.key))
 
@@ -240,11 +240,11 @@ async def test_added_interface_generator(backend, events):
         await sleep(0.003)
         assert events.get() == []
 
-        await end()
+        end()
 
     async with create_task_group() as tg:
-        async with open_cancel_scope() as scope:
-            await tg.spawn(scenario, scope.cancel)
+        with CancelScope() as scope:
+            tg.start_soon(scenario, scope.cancel)
             async for interface in scanner.added_interfaces():
                 events.add(interface)
 
@@ -274,10 +274,10 @@ async def test_removed_interface_generator(backend, events):
         await sleep(0.003)
         assert sorted(events.get()) == ["baz", "foo"]
 
-        await end()
+        end()
 
     async with create_task_group() as tg:
-        async with open_cancel_scope() as scope:
-            await tg.spawn(scenario, scope.cancel)
+        with CancelScope() as scope:
+            tg.start_soon(scenario, scope.cancel)
             async for interface in scanner.removed_interfaces():
                 events.add(interface)
