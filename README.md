@@ -7,7 +7,7 @@ removals are supported; more events may be added later.
 
 Supports Windows, Linux and macOS at the moment.
 
-Requires Python >= 3.5.
+Requires Python >= 3.7.
 
 Works with [`asyncio`](https://docs.python.org/3/library/asyncio.html),
 [`curio`](https://curio.readthedocs.io/en/latest/) and
