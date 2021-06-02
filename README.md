@@ -9,8 +9,7 @@ Supports Windows, Linux and macOS at the moment.
 
 Requires Python >= 3.7.
 
-Works with [`asyncio`](https://docs.python.org/3/library/asyncio.html),
-[`curio`](https://curio.readthedocs.io/en/latest/) and
+Works with [`asyncio`](https://docs.python.org/3/library/asyncio.html) and
 [`trio`](https://trio.readthedocs.io/en/stable/).
 
 ## Installation
