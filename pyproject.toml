@@ -20,7 +20,7 @@ pyobjc-framework-Cocoa = { version = "^6.2.2", platform = "darwin" }
 pyobjc-framework-SystemConfiguration = { version = "^6.2.2", platform = "darwin" }
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.4.3"
+pytest = "^6.2.5"
 coverage = {extras = ["toml"], version = "^5.2"}
 pytest-cov = "^2.10.0"
 trio = "^0.17.0"
