@@ -38,7 +38,7 @@ class NetlinkBasedNetworkEventDetectorBackend(PortableNetworkEventDetectorBacken
                 | RTMGRP_DECnet_IFADDR,
             )
         )
-        self._socket.setblocking(0)
+        self._socket.setblocking(False)
 
     def __del__(self):
         self._socket.close()

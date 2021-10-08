@@ -1,10 +1,20 @@
 """Async event detector for network interfaces."""
 
 from anyio import Event
-from collections import namedtuple
 from contextlib import contextmanager
 from enum import Enum
-from typing import Any, AsyncIterator, Callable, Dict, Optional, Tuple
+from typing import (
+    Any,
+    AsyncIterator,
+    Callable,
+    Dict,
+    Iterator,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from .backends.base import NetworkEventDetectorBackend, NetworkInterface
 from .backends.autodetect import choose_backend
@@ -22,9 +32,23 @@ class NetworkEventType(Enum):
     ADDRESS_REMOVED = "address_removed"
 
 
-NetworkEvent = namedtuple("NetworkEvent", "type interface address_family address key")
-NetworkEventDetectorEntry = namedtuple(
-    "NetworkEventDetectorEntry", "interface key addresses"
+NetworkEvent = NamedTuple(
+    "NetworkEvent",
+    [
+        ("type", NetworkEventType),
+        ("interface", NetworkInterface),
+        ("address_family", Optional[int]),
+        ("address", Any),
+        ("key", str),
+    ],
+)
+NetworkEventDetectorEntry = NamedTuple(
+    "NetworkEventDetectorEntry",
+    [
+        ("interface", NetworkInterface),
+        ("key", str),
+        ("addresses", Dict[int, List[Any]]),
+    ],
 )
 
 
@@ -35,6 +59,14 @@ class NetworkEventDetector:
     events when network interfaces are added or removed, or when a network
     interface gains a new IP address or loses an existing one.
     """
+
+    _backend: Union[
+        NetworkEventDetectorBackend, Callable[[], NetworkEventDetectorBackend]
+    ]
+    _entries: Dict[str, NetworkEventDetectorEntry]
+    _params: Dict[str, Any]
+    _resume_event: Optional[Event]
+    _suspended: int
 
     def __init__(
         self,
@@ -110,6 +142,7 @@ class NetworkEventDetector:
         async with backend.use():
             while True:
                 if self._suspended:
+                    assert self._resume_event is not None
                     await self._resume_event.wait()
 
                 interfaces = await backend.scan()
@@ -245,7 +278,7 @@ class NetworkEventDetector:
             self._resume_event = Event()
 
     @contextmanager
-    def suspended(self) -> None:
+    def suspended(self) -> Iterator[None]:
         """Async context manager that suspends the network event detector while the
         execution is in the context.
         """
@@ -257,7 +290,7 @@ class NetworkEventDetector:
 
     @staticmethod
     def _compare_addresses(
-        entry: NetworkEventDetectorEntry, new: Dict[int, Any]
+        entry: NetworkEventDetectorEntry, new: Dict[int, List[Any]]
     ) -> Tuple:
         """Compares a set of old addresses with a set of new addresses for a
         network interface, and reports the differences.
@@ -285,6 +318,7 @@ class NetworkEventDetector:
                 pass
             elif old_addresses is None:
                 # The whole address family was added
+                assert new_addresses is not None
                 added.extend(
                     (entry.interface, entry.key, family, address)
                     for address in new_addresses

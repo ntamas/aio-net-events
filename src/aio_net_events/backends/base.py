@@ -2,7 +2,7 @@
 
 from abc import abstractmethod, ABCMeta
 from contextlib import asynccontextmanager
-from typing import Any, Dict, List
+from typing import AsyncIterator, Any, Dict, List
 
 __all__ = ("NetworkEventDetectorBackend",)
 
@@ -54,7 +54,7 @@ class NetworkEventDetectorBackend(metaclass=ABCMeta):
         raise NotImplementedError  # pragma: no cover
 
     @asynccontextmanager
-    async def use(self) -> None:
+    async def use(self) -> AsyncIterator[None]:
         """Async context manager that is entered when the backend starts up and
         exits when the backend shuts down.
 

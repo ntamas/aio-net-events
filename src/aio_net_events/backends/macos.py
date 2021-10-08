@@ -1,6 +1,7 @@
 from anyio import Condition, create_task_group, from_thread, to_thread
 from contextlib import asynccontextmanager
 from functools import partial
+from typing import AsyncIterator, Optional
 
 from .portable import PortableNetworkEventDetectorBackend
 
@@ -21,12 +22,14 @@ class SystemConfigurationBasedNetworkEventDetectorBackend(
     default portable backend.
     """
 
+    _condition: Optional[Condition]
+
     def __init__(self) -> None:
         super().__init__()
         self._condition = None
 
     @asynccontextmanager
-    async def use(self) -> None:
+    async def use(self) -> AsyncIterator[None]:
         self._ensure_condition_exists()
         async with create_task_group() as tg:
             tg.start_soon(
@@ -59,8 +62,9 @@ class SystemConfigurationBasedNetworkEventDetectorBackend(
 
         This function runs in the context of the main event loop.
         """
+        assert self._condition is not None
         async with self._condition:
-            await self._condition.notify_all()
+            self._condition.notify_all()
 
     def _run_worker_thread(self):
         """Runs the worker thread that waits for network events."""
@@ -92,6 +96,8 @@ class SystemConfigurationBasedNetworkEventDetectorBackend(
         CFRunLoopRun()
 
     async def wait_until_next_scan(self) -> None:
+        assert self._condition is not None
+
         self._ensure_condition_exists()
         async with self._condition:
             await self._condition.wait()
