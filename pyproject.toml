@@ -23,7 +23,7 @@ pyobjc-framework-SystemConfiguration = { version = "^6.2.2", platform = "darwin"
 pytest = "^6.2.5"
 coverage = {extras = ["toml"], version = "^5.2"}
 pytest-cov = "^2.10.0"
-trio = "^0.17.0"
+trio = "^0.19.0"
 
 [tool.poetry.scripts]
 
