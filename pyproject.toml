@@ -15,15 +15,15 @@ packages = [
 python = "^3.7"
 netifaces = ">=0.10.9"
 anyio = "^3.0.0"
-pyobjc-core = { version = "^8.0", platform = "darwin" }
-pyobjc-framework-Cocoa = { version = "^8.0", platform = "darwin" }
-pyobjc-framework-SystemConfiguration = { version = "^8.0", platform = "darwin" }
+pyobjc-core = { version = "^9.0", platform = "darwin" }
+pyobjc-framework-Cocoa = { version = "^9.0", platform = "darwin" }
+pyobjc-framework-SystemConfiguration = { version = "^9.0", platform = "darwin" }
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
-coverage = {extras = ["toml"], version = "^6.0"}
-pytest-cov = "^3.0.0"
-trio = "^0.19.0"
+pytest = "^7.2.1"
+coverage = {extras = ["toml"], version = "^7.1.0"}
+pytest-cov = "^4.0.0"
+trio = "^0.20.0"
 
 [tool.poetry.scripts]
 
