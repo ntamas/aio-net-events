@@ -14,7 +14,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.7"
 anyio = "^3.7.1"
-netifaces-plus = "^0.12.0"
+netifaces-plus = ">=0.12.0"
 pyobjc-core = { version = "^9.2", platform = "darwin" }
 pyobjc-framework-Cocoa = { version = "^9.2", platform = "darwin" }
 pyobjc-framework-SystemConfiguration = { version = "^9.2", platform = "darwin" }
