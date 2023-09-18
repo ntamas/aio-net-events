@@ -150,7 +150,7 @@ class NetworkEventDetector:
                 added = {}
                 changed = {}
 
-                for index, interface in enumerate(interfaces):
+                for _index, interface in enumerate(interfaces):
                     addresses = await backend.get_addresses(interface)
                     key = key_of(interface)
 

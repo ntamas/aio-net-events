@@ -12,7 +12,7 @@ NetworkInterface = Any
 class NetworkEventDetectorBackend(metaclass=ABCMeta):
     """Interface specification for network event detector backends."""
 
-    def configure(self, configuration: Dict[str, Any]) -> None:
+    def configure(self, configuration: Dict[str, Any]) -> None:  # noqa: B027
         """Configures the detector backend and specifies what the backend should
         report.
 
