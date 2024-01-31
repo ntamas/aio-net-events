@@ -11,17 +11,17 @@ packages = [{ include = "aio_net_events", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-anyio = ">=3.7.1,<5"
+anyio = "^4.2.0"
 netifaces-plus = ">=0.12.1"
-pyobjc-core = { version = "^9.2", platform = "darwin" }
-pyobjc-framework-Cocoa = { version = "^9.2", platform = "darwin" }
-pyobjc-framework-SystemConfiguration = { version = "^9.2", platform = "darwin" }
+pyobjc-core = { version = "^10.1", platform = "darwin" }
+pyobjc-framework-Cocoa = { version = "^10.1", platform = "darwin" }
+pyobjc-framework-SystemConfiguration = { version = "^10.1", platform = "darwin" }
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
+pytest = "^8.0.0"
 coverage = { extras = ["toml"], version = "^7.3.1" }
 pytest-cov = "^4.1.0"
-trio = "^0.22"
+trio = "^0.24"
 
 [tool.poetry.scripts]
 
