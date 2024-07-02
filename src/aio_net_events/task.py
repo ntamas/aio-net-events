@@ -72,7 +72,7 @@ class NetworkEventDetector:
         self,
         params: Optional[Dict] = None,
         *,
-        backend: Callable[[], NetworkEventDetectorBackend] = choose_backend
+        backend: Callable[[], NetworkEventDetectorBackend] = choose_backend,
     ):
         """Constructor.
 
