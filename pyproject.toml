@@ -12,7 +12,7 @@ packages = [{ include = "aio_net_events", from = "src" }]
 [tool.poetry.dependencies]
 python = "^3.8"
 anyio = "^4.2.0"
-netifaces-plus = ">=0.12.1"
+netifaces-plus = ">=0.12.2"
 pyobjc-core = { version = "^10.1", platform = "darwin" }
 pyobjc-framework-Cocoa = { version = "^10.1", platform = "darwin" }
 pyobjc-framework-SystemConfiguration = { version = "^10.1", platform = "darwin" }
@@ -20,8 +20,8 @@ pyobjc-framework-SystemConfiguration = { version = "^10.1", platform = "darwin" 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
 coverage = { extras = ["toml"], version = "^7.3.1" }
-pytest-cov = "^4.1.0"
-trio = "^0.24"
+pytest-cov = "^5.0.0"
+trio = ">=0.25"
 
 [tool.poetry.scripts]
 
@@ -39,9 +39,8 @@ show_missing = true
 filterwarnings = ["ignore::RuntimeWarning"]
 
 [tool.ruff]
-ignore = ["B905", "C901", "E402", "E501"]
-line-length = 80
-select = ["B", "C", "E", "F", "W"]
+lint.ignore = ["B905", "C901", "E402", "E501"]
+lint.select = ["B", "C", "E", "F", "W"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
