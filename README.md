@@ -7,7 +7,7 @@ removals are supported; more events may be added later.
 
 Supports Windows, Linux and macOS at the moment.
 
-Requires Python >= 3.8.
+Requires Python >= 3.9.
 
 Works with [`asyncio`](https://docs.python.org/3/library/asyncio.html) and
 [`trio`](https://trio.readthedocs.io/en/stable/).
