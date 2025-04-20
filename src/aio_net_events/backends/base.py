@@ -58,7 +58,7 @@ class NetworkEventDetectorBackend(metaclass=ABCMeta):
         """Async context manager that is entered when the backend starts up and
         exits when the backend shuts down.
 
-        This context manager can be used to run background tc_genhreads or manage
+        This context manager can be used to run background threads or manage
         any additional resources that correspond to the lifetime of the backend.
 
         The default implementation does nothing.

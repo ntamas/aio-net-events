@@ -1,29 +1,30 @@
-[tool.poetry]
+[project]
 name = "aio-net-events"
 version = "7.0.0"
-description = "Asynchronous network configuration event detector for Python 3.7 and above"
+description = "Asynchronous network configuration event detector for Python 3.9 and above"
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/ntamas/aio-net-events/"
-repository = "https://github.com/ntamas/aio-net-events/"
-authors = ["Tamas Nepusz <tamas@collmot.com>"]
-packages = [{ include = "aio_net_events", from = "src" }]
+authors = [{ name = "Tamas Nepusz", email = "tamas@collmot.com" }]
+requires-python = ">=3.9"
+dependencies = [
+  "anyio>=4.9.0",
+  "netifaces-plus>=0.12.2",
+  "pyobjc-core>=11.0; sys_platform == 'darwin'",
+  "pyobjc-framework-Cocoa>=11.0; sys_platform == 'darwin'",
+  "pyobjc-framework-SystemConfiguration>=11.0; sys_platform == 'darwin'",
+]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-anyio = "^4.2.0"
-netifaces-plus = ">=0.12.2"
-pyobjc-core = { version = "^10.1", platform = "darwin" }
-pyobjc-framework-Cocoa = { version = "^10.1", platform = "darwin" }
-pyobjc-framework-SystemConfiguration = { version = "^10.1", platform = "darwin" }
+[project.urls]
+Homepage = "https://github.com/ntamas/aio-net-events/"
+Repository = "https://github.com/ntamas/aio-net-events/"
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
-coverage = { extras = ["toml"], version = "^7.3.1" }
-pytest-cov = "^5.0.0"
-trio = ">=0.25"
-
-[tool.poetry.scripts]
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "coverage[toml]>=7.3.1",
+  "pytest-cov>=6.1.1",
+  "trio>=0.25",
+]
 
 [tool.coverage.paths]
 source = ["src"]
@@ -43,5 +44,5 @@ lint.ignore = ["B905", "C901", "E402", "E501"]
 lint.select = ["B", "C", "E", "F", "W"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
