@@ -26,6 +26,12 @@ dev = [
   "trio>=0.25",
 ]
 
+[tool.hatch.build.targets.sdist]
+include = ["src"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aio_net_events"]
+
 [tool.coverage.paths]
 source = ["src"]
 
