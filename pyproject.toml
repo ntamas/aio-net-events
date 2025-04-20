@@ -1,6 +1,6 @@
 [project]
 name = "aio-net-events"
-version = "7.0.0"
+version = "8.0.0"
 description = "Asynchronous network configuration event detector for Python 3.9 and above"
 license = "MIT"
 readme = "README.md"
