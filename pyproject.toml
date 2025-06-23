@@ -18,7 +18,7 @@ dependencies = [
 Homepage = "https://github.com/ntamas/aio-net-events/"
 Repository = "https://github.com/ntamas/aio-net-events/"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
   "pytest>=8.0.0",
   "coverage[toml]>=7.3.1",
@@ -31,6 +31,9 @@ include = ["src"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/aio_net_events"]
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = ["trio"]
 
 [tool.coverage.paths]
 source = ["src"]
