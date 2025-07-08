@@ -3,6 +3,7 @@ name = "aio-net-events"
 version = "8.0.1"
 description = "Asynchronous network configuration event detector for Python 3.9 and above"
 license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
 authors = [{ name = "Tamas Nepusz", email = "tamas@collmot.com" }]
 requires-python = ">=3.9"
@@ -26,12 +27,6 @@ dev = [
   "trio>=0.25",
 ]
 
-[tool.hatch.build.targets.sdist]
-include = ["src"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/aio_net_events"]
-
 [tool.hatch.envs.hatch-test]
 extra-dependencies = ["trio"]
 
@@ -53,5 +48,5 @@ lint.ignore = ["B905", "C901", "E402", "E501"]
 lint.select = ["B", "C", "E", "F", "W"]
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.7.18,<0.8"]
+build-backend = "uv_build"
